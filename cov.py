@@ -29,10 +29,12 @@ print(Vectores)
 
 nuevo=np.dot(Vectores.T,lineas.T)
 print(nuevo)
-fig = plt.figure(figsize=(13,4))
 ax = plt.axes()
 plt.scatter(nuevo[0,:], nuevo[1,:])
-x_line = np.linspace(0,300.0,1000)
-ax.set_aspect(1.0)
+
+
+x_line = np.linspace(-300,300.0,1000)
+
+
 plt.show()
 
