@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 
 rateDo, dataDo  = scipy.io.wavfile.read('Do.wav')
 rateSol,dataSol = scipy.io.wavfile.read('Sol.wav')
-dataDo=dataDo[:10000]
-dataSol=dataSol[:10000]
+#dataDo=dataDo[int(len(dataDo)*0.5):(int(len(dataDo)*0.5)+10*44100),1]
+dataSol=dataSol[:]
+dataDo=dataDo[:]
+
 print(dataDo.shape)
 plt.plot(dataDo)
 plt.plot(dataSol)
@@ -13,7 +15,10 @@ plt.show()
 print(rateDo)
 print(rateSol)
 timestep=1.0/rateDo
-freq = np.fft.fftfreq(dataDo.size, d=timestep);
+freqSol = np.fft.fftfreq(dataSol.size, d=timestep)
+freq = np.fft.fftfreq(dataDo.size, d=timestep)
+freq2 = np.fft.fftfreq(dataDo.size, d=timestep*391/260)
+
 
 
 def dft(xp):
@@ -53,11 +58,11 @@ def dftD(xp):
 	return Fourier
 
 
-#Fou=np.fft.fft(dataDo)
-Fou=dft(dataDo)
-FouD=dftD(dataDo)
-FouSol=dft(dataSol)
-
+Fou=np.fft.fft(dataDo)
+#Fou=dft(dataDo)
+#FouD=dftD(dataDo)
+#FouSol=dft(dataSol)
+FouSol=np.fft.fft(dataSol)
 
 
 
@@ -86,19 +91,39 @@ def pasabajas(arregloP):
 	return x
 
 
+bajas=abs(pasabajas(Fou))
+altas=abs(eliminarFMax(Fou))
+inversa=np.fft.ifft(Fou)
+inversa1=np.fft.ifft(bajas)
+inversa2=np.fft.ifft(altas)
+
+
 
 fig,(ax1,ax2,ax3,ax4,ax5)=plt.subplots(5,1)
 ax1.plot(freq,abs(Fou),color='g')
 ax1.set_xlim(0,8000)
-ax2.plot(freq,abs(FouD),color='b')
-ax3.plot(freq,abs(FouSol),color='b')
-ax4.plot(freq,abs(eliminarFMax(Fou)),color='b')
+ax2.plot(freqSol,abs(FouSol),color='b')
+ax2.set_xlim(0,8000)
+ax3.plot(freq2,abs(Fou),color='b')
+ax3.set_xlim(0,8000)
+ax4.plot(freq,bajas,color='b')
 ax4.set_xlim(0,8000)
-ax5.plot(freq,abs(pasabajas(Fou)),color='r')
+ax5.plot(freq,altas,color='r')
 ax5.set_xlim(0,8000)
 plt.show()
 
-#inversa=np.fft.ifft(FouD)
-inversa=np.asarray(inversa,dtype=np.int16)
-scipy.io.wavfile.write('DoRec.wav',rateDo,inversa)
+inversa1=np.asarray(inversa,dtype=np.int16)
+scipy.io.wavfile.write('Do_sol.wav',rateDo*391/260,inversa1)
+
+
+
+"""
+inversa2=np.asarray(inversa2,dtype=np.int16)
+inversa1=np.asarray(inversa1,dtype=np.int16)
+scipy.io.wavfile.write('Do_pasabajos.wav',rateDo,inversa1)
+scipy.io.wavfile.write('Do_pico.wav',rateDo,inversa2)
+"""
+
+
+
 
